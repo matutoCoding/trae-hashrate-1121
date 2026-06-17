@@ -24,8 +24,11 @@ export class CutRecordService {
 
   static getCutRecordsByUser(userId: string, limit: number = 50): CutRecord[] {
     const rows = db.prepare(`
-      SELECT * FROM cut_records WHERE user_id = ? ORDER BY created_at DESC LIMIT ?
-    `).all(userId, limit) as any[];
+      SELECT * FROM cut_records
+      WHERE user_id = ? OR affected_users LIKE ?
+      ORDER BY created_at DESC
+      LIMIT ?
+    `).all(userId, `%${userId}%`, limit) as any[];
 
     return rows.map(row => ({
       id: row.id,

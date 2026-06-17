@@ -9,11 +9,26 @@ export class QuotaService {
 
   static getUserQuota(userId: string): Quota | null {
     const month = this.getCurrentMonth();
-    const row = db.prepare(`
+    let row = db.prepare(`
       SELECT * FROM quotas WHERE user_id = ? AND month = ?
     `).get(userId, month) as any;
 
-    if (!row) return null;
+    if (!row) {
+      const user = db.prepare('SELECT role FROM users WHERE id = ?').get(userId) as any;
+      if (!user) return null;
+
+      const monthlyAmount = user.role === 'vip' ? 800 : 500;
+      const now = new Date().toISOString();
+
+      db.prepare(`
+        INSERT INTO quotas (id, user_id, monthly_amount, used_amount, remaining_amount, month, last_reset_at)
+        VALUES (?, ?, ?, 0, ?, ?, ?)
+      `).run(uuidv4(), userId, monthlyAmount, monthlyAmount, month, now);
+
+      row = db.prepare(`
+        SELECT * FROM quotas WHERE user_id = ? AND month = ?
+      `).get(userId, month) as any;
+    }
 
     return {
       id: row.id,

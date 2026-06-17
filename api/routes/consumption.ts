@@ -70,4 +70,20 @@ router.get('/settlement', (req: Request, res: Response) => {
   }
 });
 
+router.post('/settlement/:settlementId/confirm', (req: Request, res: Response) => {
+  try {
+    const { settlementId } = req.params;
+    const success = ConsumptionService.confirmSettlement(settlementId);
+    if (!success) {
+      return res.status(400).json({
+        success: false,
+        error: '结算不存在或已确认'
+      } as ApiResponse);
+    }
+    res.json({ success: true, message: '结算确认成功' } as ApiResponse);
+  } catch (error) {
+    res.status(500).json({ success: false, error: (error as Error).message } as ApiResponse);
+  }
+});
+
 export default router;

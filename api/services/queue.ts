@@ -279,7 +279,8 @@ export class QueueService {
       SELECT * FROM settlements WHERE stall_id = ? AND date = ?
     `).get(order.stallId, today) as any;
 
-    const commissionRate = 0.1;
+    const stall = db.prepare('SELECT commission_rate FROM stalls WHERE id = ?').get(order.stallId) as any;
+    const commissionRate = stall ? stall.commission_rate : 0.1;
     const commissionAmount = order.totalAmount * commissionRate;
     const settlementAmount = order.totalAmount - commissionAmount;
 

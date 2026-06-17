@@ -64,6 +64,8 @@ export const api = {
       request(`/consumption/settlement/stall/${stallId}${date ? `?date=${date}` : ''}`),
     getSettlements: (date?: string) =>
       request(`/consumption/settlement${date ? `?date=${date}` : ''}`),
+    confirmSettlement: (settlementId: string) =>
+      request(`/consumption/settlement/${settlementId}/confirm`, { method: 'POST' }),
   },
   stall: {
     getAll: () =>

@@ -110,4 +110,14 @@ export class ConsumptionService {
       totalSelfPay: result.total_self_pay || 0,
     };
   }
+
+  static confirmSettlement(settlementId: string): boolean {
+    const result = db.prepare(`
+      UPDATE settlements
+      SET status = 'settled'
+      WHERE id = ? AND status = 'pending'
+    `).run(settlementId);
+
+    return result.changes > 0;
+  }
 }

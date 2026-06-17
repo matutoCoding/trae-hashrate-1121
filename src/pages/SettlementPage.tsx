@@ -280,11 +280,16 @@ export default function SettlementPage() {
                       {currentUser?.role === 'admin' && settlement.status === 'pending' && (
                         <button
                           className="btn-primary flex items-center gap-2"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
                             if (confirm(`确定要结算 ${settlement.stallName} 的 ¥${settlement.settlementAmount.toFixed(2)} 吗？`)) {
-                              alert('结算成功');
-                              loadData();
+                              try {
+                                await api.consumption.confirmSettlement(settlement.id);
+                                alert('结算成功');
+                                loadData();
+                              } catch (err: any) {
+                                alert('结算失败: ' + (err.message || '未知错误'));
+                              }
                             }
                           }}
                         >
